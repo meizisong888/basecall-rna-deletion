@@ -1,0 +1,27 @@
+model: tcn_mta
+model_params:
+  input_channels: 1
+  hidden_dim: 512
+  num_layers: 10
+  downsample_factor: 4
+  conv_kernel: 5
+  dropout: 0.1
+  ms_kernels: "5,9,17,33"
+  alpha_ms: 0.05
+data:
+  train_ctc_dir: <DATA_ROOT>/ctc_chunks/train
+  read_weight_table: <READ_WEIGHT_TABLE>
+optimizer: AdamW
+epochs: 50
+batch_size: 1
+learning_rate: 0.0001
+weight_decay: 0.0001
+grad_clip: 1.0
+seed: 1
+validation_each_epoch: true
+checkpoint_selection: best_validation_cer
+loss:
+  blank_idx: 0
+  blank_penalty: 0.0
+  lenreg: 0.0
+

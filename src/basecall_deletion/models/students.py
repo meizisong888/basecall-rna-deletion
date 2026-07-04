@@ -93,12 +93,35 @@ class LSTMStudentCTC(nn.Module):
         self.dropout = nn.Dropout(float(dropout))
         self.classifier = nn.Linear(lstm_hidden * 2, vocab_size)
 
-    def forward(self, x: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, dict[str, Any]]:
+    def encode(self, x: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         features, out_lengths = self.frontend(x, lengths)
         features, _ = self.lstm(features)
+        return features, out_lengths
+
+    def forward(self, x: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, dict[str, Any]]:
+        features, out_lengths = self.encode(x, lengths)
         logits = self.classifier(self.dropout(features))
         log_probs = torch.log_softmax(logits, dim=-1).transpose(0, 1).contiguous()
         return log_probs, out_lengths.clamp(max=log_probs.shape[0]), {"model": "lstm"}
+
+
+class LSTMStudentWithMTA(LSTMStudentCTC):
+    """LSTM CTC student with MTA placed on encoded features before the CTC head."""
+
+    def __init__(self, *args: Any, ms_kernels: str = "5,9,17,33", alpha_ms: float = 0.05, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        hidden_dim = self.classifier.in_features
+        self.mta = MultiScaleTemporalAdapter(hidden_dim=hidden_dim, kernels=ms_kernels)
+        self.alpha_ms = float(alpha_ms)
+
+    def forward(self, x: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, dict[str, Any]]:
+        features, out_lengths = self.encode(x, lengths)
+        mask = torch.arange(features.shape[1], device=features.device).unsqueeze(0) >= out_lengths.to(features.device).unsqueeze(1)
+        context, stats = self.mta(features, mask)
+        features = features + self.alpha_ms * context
+        logits = self.classifier(self.dropout(features))
+        log_probs = torch.log_softmax(logits, dim=-1).transpose(0, 1).contiguous()
+        return log_probs, out_lengths.clamp(max=log_probs.shape[0]), {"model": "lstm_mta", **stats}
 
 
 class TCNStudentCTC(nn.Module):
@@ -176,6 +199,8 @@ def build_model(config: dict[str, Any]) -> nn.Module:
     params = dict(config.get("model_params", {}))
     if model_type == "lstm":
         return LSTMStudentCTC(**params)
+    if model_type in {"lstm_mta", "lstm+ mta"}:
+        return LSTMStudentWithMTA(**params)
     if model_type == "tcn":
         return TCNStudentCTC(**params)
     if model_type in {"tcn_mta", "tcn+ mta", "tcn_mta"}:
@@ -183,4 +208,3 @@ def build_model(config: dict[str, Any]) -> nn.Module:
     if model_type in {"gcrt", "conformer", "gcrt_conformer"}:
         return GCRTConformerCTC(**params)
     raise ValueError(f"unknown model type: {model_type}")
-

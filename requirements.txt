@@ -9,4 +9,4 @@ biopython
 pyyaml
 pod5
 h5py
-
+pytest

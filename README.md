@@ -1,6 +1,6 @@
 # Reducing Teacher-Relative Deletion Errors in Direct RNA Nanopore Student Basecalling
 
-This repository contains code for deletion-aware direct RNA nanopore student basecalling experiments, including QW-CTC, the Multi-scale Temporal Adapter, teacher-relative Del/CER evaluation, paired statistical testing, and paper table/figure generation.
+This repository contains cleaned implementation components for deletion-aware direct RNA nanopore student basecalling experiments, including QW-CTC, the Multi-scale Temporal Adapter, teacher-relative Del/CER evaluation, paired statistical testing, and table/figure utilities.
 
 ## Double-blind note
 
@@ -10,22 +10,25 @@ This repository is prepared for de-anonymized release. The anonymous submission 
 
 - QW-CTC training code
 - Multi-scale Temporal Adapter code
-- LSTM, TCN, and GCRT/Conformer-style student model components
+- LSTM, TCN, and GCRT/Conformer-style student model components, including QW-CTC+MTA instantiation paths
 - teacher-relative evaluation scripts
 - paired bootstrap and sign-flip analysis
-- table and figure generation scripts
-- example configs
+- table and figure helper scripts for externally supplied metric CSV files
+- smoke-test and paper-style config templates
 
 ## What is not included
 
 - raw GTGSEQ RNA004 data
 - Dorado pseudo-label FASTQ files
+- precomputed CTC chunks and read-weight tables
 - BAM/SAM alignment files
 - reference transcriptome files
 - trained checkpoints
 - large experiment outputs
 - private cluster logs
 - paper PDF or LaTeX source
+
+This repository does not include completed paper result archives. The provided scripts are implementation components and wrappers; they do not regenerate Tables I--IV without the external data, pseudo-labels, CTC chunks, read-weight tables, decoded outputs, and metric CSV files used by the paper.
 
 ## Expected data layout
 
@@ -71,7 +74,7 @@ python scripts/prepare_confidence_weights.py \
 
 ```bash
 python scripts/train_qw_ctc.py \
-  --config configs/example_qw_ctc_mta.yaml \
+  --config configs/example_smoke_qw_ctc_mta.yaml \
   --data-root <DATA_ROOT> \
   --pseudo-label-fastq <PSEUDOLABEL_FASTQ> \
   --read-weight-table <READ_WEIGHT_TABLE> \
@@ -96,6 +99,7 @@ python scripts/run_paired_bootstrap.py \
 
 - Del and CER are teacher-relative to fixed Dorado SUP pseudo-labels.
 - Evaluation uses greedy CTC decoding and post-decoding alignment.
+- QW-CTC read weights are fixed offline from identity-derived teacher-to-reference confidence \(q_i\).
 - The paper uses a fixed 3,276 / 409 / 411 student split.
 - The 402-read public-baseline subset is only for auxiliary baseline comparison.
 - This code release does not include external data, pseudo-labels, checkpoints, or completed result archives.
@@ -103,4 +107,3 @@ python scripts/run_paired_bootstrap.py \
 ## Citation
 
 Citation will be added after publication.
-
