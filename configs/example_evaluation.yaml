@@ -1,0 +1,10 @@
+pred_fastq: <PRED_FASTQ>
+teacher_fastq: <PSEUDOLABEL_FASTQ>
+output_dir: <OUTPUT_ROOT>/eval
+metrics:
+  - cer
+  - del
+  - ins
+  - mis
+  - len_ratio
+

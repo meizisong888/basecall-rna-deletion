@@ -1,0 +1,22 @@
+model: tcn_mta
+model_params:
+  input_channels: 1
+  hidden_dim: 512
+  num_layers: 10
+  downsample_factor: 4
+  conv_kernel: 5
+  dropout: 0.1
+  ms_kernels: "5,9,17,33"
+  alpha_ms: 0.05
+data:
+  train_ctc_dir: <DATA_ROOT>/ctc_chunks/train
+  read_weight_table: <READ_WEIGHT_TABLE>
+epochs: 1
+batch_size: 4
+learning_rate: 0.0001
+loss:
+  blank_idx: 0
+  blank_penalty: 0.005
+  lenreg: 0.0
+  lenreg_target: 1.0
+

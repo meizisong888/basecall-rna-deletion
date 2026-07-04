@@ -1,0 +1,12 @@
+torch
+numpy
+pandas
+scipy
+matplotlib
+tqdm
+edlib
+biopython
+pyyaml
+pod5
+h5py
+

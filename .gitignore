@@ -1,0 +1,72 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+.DS_Store
+
+# Logs
+*.log
+*.out
+*.err
+
+# Experiment outputs
+runs/
+results/
+outputs/
+checkpoints/
+weights/
+wandb/
+lightning_logs/
+tensorboard/
+
+# Model artifacts
+*.pth
+*.pt
+*.ckpt
+*.onnx
+
+# Sequencing and reference data
+*.pod5
+*.fast5
+*.fastq
+*.fq
+*.bam
+*.sam
+*.cram
+*.fa
+*.fasta
+*.mmi
+*.bed
+*.gtf
+*.gff
+*.gff3
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# Private config
+.env
+secrets*
+config.local*
+*token*
+*api_key*
+*password*
+
+# LaTeX build and paper PDFs
+*.pdf
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
